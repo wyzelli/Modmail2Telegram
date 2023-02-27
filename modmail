@@ -1,7 +1,8 @@
 import praw
 import telegram
+import time
 
-# Set up the PRAW Reddit API wrapper
+# Set up the PRAW Reddit API wrapper and Telegram bot API wrapper
 reddit = praw.Reddit(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
@@ -10,27 +11,34 @@ reddit = praw.Reddit(
     user_agent="YOUR_USER_AGENT",
 )
 
-# Set up the Telegram bot API wrapper
+# https://core.telegram.org/bots#creating-a-new-bot
 bot = telegram.Bot(token="YOUR_TELEGRAM_BOT_TOKEN")
-chat_id = "YOUR_TELEGRAM_CHAT_ID" # replace with your chat ID
+chat_id = "YOUR_TELEGRAM_CHAT_ID"
 
 # Set the subreddit and modmail folder to monitor
 subreddit_name = "YOUR_SUBREDDIT_NAME"
 modmail_folder = "mod"
-
-# Get the subreddit object and modmail folder object
 subreddit = reddit.subreddit(subreddit_name)
 modmail = subreddit.modmail
 
-# Loop through the modmail threads in the specified folder
-for thread in modmail.replies(folder=modmail_folder):
+# Set the loop delay to 10 minutes (in seconds)
+loop_delay = 10 * 60
 
-    # Check if the thread has any new messages since the last time we checked
-    if thread.last_unread is not None:
+# Start the loop
+while True:
 
-        # Send a Telegram message with the thread's subject and permalink
-        message = f"New modmail in {subreddit_name} - {thread.subject}\n\n{thread.permalink}"
-        bot.send_message(chat_id=chat_id, text=message)
+    # Loop through the modmail threads in the specified folder
+    for thread in modmail.replies(folder=modmail_folder):
 
-        # Mark the thread as read so we don't get duplicate notifications
-        thread.mark_read()
+        # Check if the thread has any new messages since the last time we checked
+        if thread.last_unread is not None:
+
+            # Send a Telegram message with the thread's subject and permalink
+            message = f"New modmail in {subreddit_name} - {thread.subject}\n\n{thread.permalink}"
+            bot.send_message(chat_id=chat_id, text=message)
+
+            # Mark the thread as read so we don't get duplicate notifications
+            thread.mark_read()
+
+    # Wait for the specified delay before running the loop again
+    time.sleep(loop_delay)
