@@ -1,0 +1,36 @@
+import praw
+import telegram
+
+# Set up the PRAW Reddit API wrapper
+reddit = praw.Reddit(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    username="YOUR_REDDIT_USERNAME",
+    password="YOUR_REDDIT_PASSWORD",
+    user_agent="YOUR_USER_AGENT",
+)
+
+# Set up the Telegram bot API wrapper
+bot = telegram.Bot(token="YOUR_TELEGRAM_BOT_TOKEN")
+chat_id = "YOUR_TELEGRAM_CHAT_ID" # replace with your chat ID
+
+# Set the subreddit and modmail folder to monitor
+subreddit_name = "YOUR_SUBREDDIT_NAME"
+modmail_folder = "mod"
+
+# Get the subreddit object and modmail folder object
+subreddit = reddit.subreddit(subreddit_name)
+modmail = subreddit.modmail
+
+# Loop through the modmail threads in the specified folder
+for thread in modmail.replies(folder=modmail_folder):
+
+    # Check if the thread has any new messages since the last time we checked
+    if thread.last_unread is not None:
+
+        # Send a Telegram message with the thread's subject and permalink
+        message = f"New modmail in {subreddit_name} - {thread.subject}\n\n{thread.permalink}"
+        bot.send_message(chat_id=chat_id, text=message)
+
+        # Mark the thread as read so we don't get duplicate notifications
+        thread.mark_read()
