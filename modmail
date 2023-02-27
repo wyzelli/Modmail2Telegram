@@ -1,19 +1,29 @@
 import praw
 import telegram
 import time
+import configparser
+
+# Load the OAuth information from the praw.ini file
+# https://core.telegram.org/bots#creating-a-new-bot
+config = configparser.ConfigParser()
+config.read("praw.ini")
+client_id = config.get("reddit", "client_id")
+client_secret = config.get("reddit", "client_secret")
+username = config.get("reddit", "username")
+password = config.get("reddit", "password")
+user_agent = config.get("reddit", "user_agent")
+telegram_bot_token = config.get("telegram", "bot_token")
+telegram_chat_id = config.get("telegram", "chat_id")
 
 # Set up the PRAW Reddit API wrapper and Telegram bot API wrapper
 reddit = praw.Reddit(
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-    username="YOUR_REDDIT_USERNAME",
-    password="YOUR_REDDIT_PASSWORD",
-    user_agent="YOUR_USER_AGENT",
+    client_id=client_id,
+    client_secret=client_secret,
+    username=username,
+    password=password,
+    user_agent=user_agent,
 )
-
-# https://core.telegram.org/bots#creating-a-new-bot
-bot = telegram.Bot(token="YOUR_TELEGRAM_BOT_TOKEN")
-chat_id = "YOUR_TELEGRAM_CHAT_ID"
+bot = telegram.Bot(token=telegram_bot_token)
 
 # Set the subreddit and modmail folder to monitor
 subreddit_name = "YOUR_SUBREDDIT_NAME"
@@ -35,7 +45,7 @@ while True:
 
             # Send a Telegram message with the thread's subject and permalink
             message = f"New modmail in {subreddit_name} - {thread.subject}\n\n{thread.permalink}"
-            bot.send_message(chat_id=chat_id, text=message)
+            bot.send_message(chat_id=telegram_chat_id, text=message)
 
             # Mark the thread as read so we don't get duplicate notifications
             thread.mark_read()
