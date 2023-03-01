@@ -1,17 +1,26 @@
 import praw
+import praw.util.token_manager
 import time
 import configparser
 import requests
 VERSION = 0.01
 
-# Load the OAuth information from the modmail.ini file
+# Load the OAuth information from the modmail.ini file - make your own from the included sample.ini
 config = configparser.ConfigParser()
-config.read("modmail.ini")
+config.read("sample.ini")
 client_id = config.get("reddit", "client_id")
 client_secret = config.get("reddit", "client_secret")
 username = config.get("reddit", "username")
 password = config.get("reddit", "password")
 user_agent = config.get("reddit", "user_agent")
+
+# token
+token_manager = praw.util.token_manager.FileTokenManager('my_token.txt')
+if not token_manager.has_token():
+    seed = 'my_secret_seed'  # Replace with your own secret seed
+    token = praw.util.token_manager.get_token_from_cli(seed)
+    token_manager.save(token)
+
 
 # Set up the PRAW Reddit API wrapper
 reddit = praw.Reddit(
