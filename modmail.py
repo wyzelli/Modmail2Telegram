@@ -1,5 +1,5 @@
 import praw
-import praw.util.token_manager
+# import praw.util.token_manager
 import time
 import configparser
 import requests
@@ -7,27 +7,21 @@ VERSION = 0.01
 
 # Load the OAuth information from the modmail.ini file - make your own from the included sample.ini
 config = configparser.ConfigParser()
-config.read("sample.ini")
+config.read("modmail.ini")
 client_id = config.get("reddit", "client_id")
 client_secret = config.get("reddit", "client_secret")
+refresh_token = config.get("reddit", "refresh_token")
 username = config.get("reddit", "username")
 password = config.get("reddit", "password")
 user_agent = config.get("reddit", "user_agent")
-
-# token
-token_manager = praw.util.token_manager.FileTokenManager('my_token.txt')
-if not token_manager.has_token():
-    seed = 'my_secret_seed'  # Replace with your own secret seed
-    token = praw.util.token_manager.get_token_from_cli(seed)
-    token_manager.save(token)
-
 
 # Set up the PRAW Reddit API wrapper
 reddit = praw.Reddit(
     client_id=client_id,
     client_secret=client_secret,
-    username=username,
-    password=password,
+    refresh_token=refresh_token,
+    #username=username,
+    #password=password,
     user_agent=user_agent,
 )
 
@@ -50,7 +44,7 @@ while True:
     for modmail_conversation in subreddit.mod.stream.modmail_conversations(state='new'):
         author=str(modmail_conversation.authors[0])
 
-        # TODO :Loop through the modmail threads in the specified folder # these prpoerties might be wrong
+        # TODO :Loop through the modmail threads in the specified folder # these properties might be wrong
         #for thread in modmail.replies(folder=modmail_folder):
 
             # Check if the thread has any new messages since the last time we checked
