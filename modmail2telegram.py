@@ -1,30 +1,27 @@
+import os
 import praw
-# import praw.util.token_manager
 import time
 import configparser
 import requests
-VERSION = 0.01
+VERSION = '0.02'
 
 # Load the OAuth information from the modmail.ini file - make your own from the included sample.ini
 config = configparser.ConfigParser()
 config.read("modmail.ini")
-client_id = config.get("reddit", "client_id")
-client_secret = config.get("reddit", "client_secret")
-refresh_token = config.get("reddit", "refresh_token")
-username = config.get("reddit", "username")
-password = config.get("reddit", "password")
-user_agent = config.get("reddit", "user_agent")
+
+# set tht useragent string
+agent='python:' + os.path.basename(__file__) + ':' + VERSION + ' (by /u/' + config.get("reddit", "username") + ')'
 
 # Set up the PRAW Reddit API wrapper
 reddit = praw.Reddit(
-    client_id=client_id,
-    client_secret=client_secret,
-    refresh_token=refresh_token,
-    #username=username,
-    #password=password,
-    user_agent=user_agent,
+    client_id=config.get("reddit", "client_id"),
+    client_secret=config.get("reddit", "client_secret"),
+    refresh_token=config.get("reddit", "refresh_token"),
+    user_agent=agent,
+    #username=config.get("reddit", "username"),
+    #password=config.get("reddit", "password"),
 )
-
+    
 # Set the subreddit and modmail folder to monitor
 subreddit_name = "r/sudoku"
 modmail_folder = "mod"
@@ -39,7 +36,7 @@ telegram_chat_id = config.get("telegram", "chat_id")
 
 # Start the loop
 while True:
-    # if modmail.num_messages > 0:
+    #if modmail.num_messages > 0:
 
     for modmail_conversation in subreddit.mod.stream.modmail_conversations(state='new'):
         author=str(modmail_conversation.authors[0])
@@ -60,4 +57,4 @@ while True:
             #thread.mark_read()
 
         # Wait for the specified delay before running the loop again
-        time.sleep(loop_delay)
+    time.sleep(loop_delay)
