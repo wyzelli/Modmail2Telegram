@@ -9,7 +9,7 @@ VERSION = '0.02'
 config = configparser.ConfigParser()
 config.read("modmail.ini")
 
-# set tht useragent string
+# set the useragent string
 agent='python:' + os.path.basename(__file__) + ':' + VERSION + ' (by /u/' + config.get("reddit", "username") + ')'
 
 # Set up the PRAW Reddit API wrapper
